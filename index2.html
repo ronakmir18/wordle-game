@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Office Word Hunt</title>
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      background: #f5f5f5;
+    }
+
+    h1 { margin-top: 20px; }
+
+    input {
+      padding: 10px;
+      margin: 10px;
+      width: 200px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(6, 60px);
+      gap: 6px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .cell {
+      width: 60px;
+      height: 60px;
+      background: white;
+      border: 2px solid #333;
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .selected { background: yellow; }
+    .found { background: lightgreen; }
+
+    .word {
+      display: inline-block;
+      padding: 8px 12px;
+      border: 1px solid black;
+      margin: 5px;
+      background: white;
+    }
+
+    .done {
+      text-decoration: line-through;
+      background: lightgreen;
+    }
+
+    ul { list-style: none; padding: 0; }
+  </style>
+</head>
+
+<body>
+
+<h1>🧩 Office Word Hunt</h1>
+
+<input id="playerName" placeholder="Enter your name">
+
+<h3>Find these words:</h3>
+<div id="wordList"></div>
+
+<div class="grid" id="grid"></div>
+
+<h2>🏆 Leaderboard</h2>
+<ul id="leaderboard"></ul>
+
+<script>
+const words = ["DATA", "NINJA", "CLIX"];
+let foundWords = [];
+
+const gridLetters = [
+  ["D","A","T","A","X","Z"],
+  ["N","I","N","J","A","Q"],
+  ["C","L","I","X","M","P"],
+  ["R","T","Y","U","I","O"],
+  ["S","D","F","G","H","J"],
+  ["K","L","Z","X","C","V"]
+];
+
+let selectedCells = [];
+let isDragging = false;
+let startTime = Date.now();
+
+function createGrid() {
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
+
+  gridLetters.forEach((row) => {
+    row.forEach((letter) => {
+      const div = document.createElement("div");
+      div.className = "cell";
+      div.innerText = letter;
+
+      div.onmousedown = () => startSelection(div);
+      div.onmouseover = () => dragSelection(div);
+      div.onmouseup = endSelection;
+
+      grid.appendChild(div);
+    });
+  });
+}
+
+function startSelection(cell) {
+  isDragging = true;
+  selectedCells = [];
+  selectCell(cell);
+}
+
+function dragSelection(cell) {
+  if (isDragging) selectCell(cell);
+}
+
+function selectCell(cell) {
+  if (!selectedCells.includes(cell)) {
+    selectedCells.push(cell);
+    cell.classList.add("selected");
+  }
+}
+
+function endSelection() {
+  isDragging = false;
+
+  let word = selectedCells.map(c => c.innerText).join("");
+
+  if (words.includes(word) && !foundWords.includes(word)) {
+    selectedCells.forEach(c => {
+      c.classList.remove("selected");
+      c.classList.add("found");
+    });
+
+    foundWords.push(word);
+    updateWordList();
+  } else {
+    selectedCells.forEach(c => c.classList.remove("selected"));
+  }
+
+  selectedCells = [];
+
+  // GAME COMPLETE
+  if (foundWords.length === words.length) {
+    let timeTaken = ((Date.now() - startTime) / 1000).toFixed(2);
+    alert(`🎉 Completed in ${timeTaken}s`);
+    saveScore(timeTaken);
+  }
+}
+
+function updateWordList() {
+  const list = document.getElementById("wordList");
+  list.innerHTML = "";
+
+  words.forEach(w => {
+    const div = document.createElement("div");
+    div.className = "word";
+    if (foundWords.includes(w)) div.classList.add("done");
+    div.innerText = w;
+    list.appendChild(div);
+  });
+}
+
+function saveScore(time) {
+  const name = document.getElementById("playerName").value || "Anonymous";
+
+  let scores = JSON.parse(localStorage.getItem("scores")) || [];
+  scores.push({ name, time });
+
+  localStorage.setItem("scores", JSON.stringify(scores));
+  showLeaderboard();
+}
+
+function showLeaderboard() {
+  let scores = JSON.parse(localStorage.getItem("scores")) || [];
+  scores.sort((a, b) => a.time - b.time);
+
+  let board = document.getElementById("leaderboard");
+  board.innerHTML = "";
+
+  scores.forEach(s => {
+    let li = document.createElement("li");
+    li.innerText = `${s.name} - ${s.time}s`;
+    board.appendChild(li);
+  });
+}
+
+createGrid();
+updateWordList();
+showLeaderboard();
+</script>
+
+</body>
+</html>
