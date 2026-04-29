@@ -13,7 +13,7 @@
 
     .container {
       background: white;
-      width: 520px;
+      width: 420px;
       margin: 40px auto;
       padding: 20px;
       border-radius: 16px;
@@ -22,21 +22,21 @@
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(10, 45px);
+      grid-template-columns: repeat(6, 55px);
       gap: 6px;
       justify-content: center;
       margin-top: 20px;
     }
 
     .cell {
-      width: 45px;
-      height: 45px;
+      width: 55px;
+      height: 55px;
       background: #f1f3f5;
-      border-radius: 8px;
+      border-radius: 10px;
+      font-size: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
       cursor: pointer;
       user-select: none;
     }
@@ -46,10 +46,10 @@
 
     .word {
       display: inline-block;
-      margin: 5px;
       padding: 6px 10px;
-      background: #eee;
+      margin: 5px;
       border-radius: 6px;
+      background: #eee;
     }
 
     .done {
@@ -63,32 +63,35 @@
 <body>
 
 <div class="container">
+
 <h1>🧩 Office Word Hunt</h1>
 
 <h3>Find these words:</h3>
 <div id="wordList"></div>
 
 <div class="grid" id="grid"></div>
+
 </div>
 
 <script>
-const words = ["DATA", "NINJA", "CLIX", "LOGIC", "PIXEL"];
-
+const words = ["DATA", "NINJA", "CLIX"];
 let foundWords = [];
 
-/* 10x10 GRID (words placed in different directions) */
+/* 6x6 GRID */
 const gridLetters = [
-["D","A","T","A","X","Q","L","M","N","O"], // DATA →
-["B","C","D","E","F","G","H","I","J","K"],
-["N","I","N","J","A","P","Q","R","S","T"], // NINJA →
-["U","V","W","X","Y","Z","A","B","C","D"],
-["E","F","G","H","I","J","K","L","M","N"],
-["C","L","I","X","O","P","Q","R","S","T"], // CLIX →
-["U","V","W","X","Y","Z","A","B","C","D"],
-["L","O","G","I","C","E","F","G","H","I"], // LOGIC →
-["P","Q","R","S","T","U","V","W","X","Y"],
-["P","I","X","E","L","Z","A","B","C","D"]  // PIXEL →
+["D","A","T","A","X","Q"],   // DATA → horizontal
+["N","B","C","D","E","F"],
+["I","G","H","I","J","K"],
+["N","L","M","N","O","P"],
+["J","Q","R","S","T","U"],
+["A","V","W","X","Y","Z"]
 ];
+
+// CLIX diagonal (manually placed)
+gridLetters[0][5] = "C";
+gridLetters[1][4] = "L";
+gridLetters[2][3] = "I";
+gridLetters[3][2] = "X";
 
 let selectedCells = [];
 let isDragging = false;
@@ -135,7 +138,7 @@ function endSelection() {
   let forward = selectedCells.map(c => c.innerText).join("");
   let backward = forward.split("").reverse().join("");
 
-  if ((words.includes(forward) || words.includes(backward)) && 
+  if ((words.includes(forward) || words.includes(backward)) &&
       !foundWords.includes(forward) && !foundWords.includes(backward)) {
 
     selectedCells.forEach(c => {
@@ -143,8 +146,8 @@ function endSelection() {
       c.classList.add("found");
     });
 
-    foundWords.push(forward);
-    foundWords.push(backward);
+    if (words.includes(forward)) foundWords.push(forward);
+    if (words.includes(backward)) foundWords.push(backward);
 
     updateWordList();
   } else {
