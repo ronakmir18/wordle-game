@@ -103,7 +103,6 @@
 const words = ["DATA", "NINJA", "CLIX"];
 let foundWords = [];
 
-/* FIXED GRID */
 const gridLetters = [
 ["D","A","T","A","Q","R"],
 ["D","B","C","D","E","F"],
@@ -117,9 +116,9 @@ let selectedCells = [];
 let isDragging = false;
 let startTime = Date.now();
 
-/* ✅ YOUR NEW WORKING SCRIPT URL */
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwbQB8LXK_xI8j0lUQnKn4TnCCG5Z4rA4b79T_ZlyBw11QoTT4c9H0B1ACQCUhjo7cTVw/exec";
-  
+/* ✅ YOUR FINAL SCRIPT URL */
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby-JYx5cldCpIhuKzIO8HxYipq6PU9jGqk-7U3A7tgK6bES5ryZ1Xi5dkRPWu5CRP2Z8g/exec";
+
 function createGrid() {
   const grid = document.getElementById("grid");
   grid.innerHTML = "";
@@ -181,12 +180,9 @@ function endSelection() {
   selectedCells = [];
 
   if (foundWords.length === words.length) {
-  let timeTaken = ((Date.now() - startTime) / 1000).toFixed(2);
-
-  console.log("TIME:", timeTaken); // debug
-
-  saveScore(timeTaken);
-}
+    let timeTaken = ((Date.now() - startTime) / 1000).toFixed(2);
+    saveScore(timeTaken);
+  }
 }
 
 function updateWordList() {
@@ -202,12 +198,12 @@ function updateWordList() {
   });
 }
 
-/* SAVE SCORE */
+/* 🔥 FINAL WORKING SAVE */
 function saveScore(time) {
   const name = document.getElementById("playerName").value.trim();
 
   if (!name) {
-    alert("Enter name first");
+    alert("Enter your name first");
     return;
   }
 
@@ -220,15 +216,16 @@ function saveScore(time) {
     body: formData
   })
   .then(() => {
-    alert("Saved!");
+    alert("Score saved!");
     loadLeaderboard();
   })
   .catch(err => {
     console.error(err);
-    alert("Still broken");
+    alert("Error saving score");
   });
-}  
-  /* LOAD LEADERBOARD */
+}
+
+/* LOAD LEADERBOARD */
 function loadLeaderboard() {
   fetch(SCRIPT_URL)
     .then(res => res.json())
@@ -243,9 +240,6 @@ function loadLeaderboard() {
         li.innerText = `${s.name} — ${s.time}s`;
         board.appendChild(li);
       });
-    })
-    .catch(err => {
-      console.error(err);
     });
 }
 
