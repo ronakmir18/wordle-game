@@ -202,15 +202,16 @@ function updateWordList() {
 
 /* SAVE SCORE */
 function saveScore(time) {
-  const name = document.getElementById("playerName").value || "Anonymous";
+  const nameInput = document.getElementById("playerName");
+  const name = nameInput.value.trim() || "Anonymous";
 
-  const url = `${SCRIPT_URL}?name=${encodeURIComponent(name)}&time=${time}`;
+  const url = `${SCRIPT_URL}?name=${encodeURIComponent(name)}&time=${encodeURIComponent(time)}`;
 
-  // 🔥 THIS LINE FIXES EVERYTHING
+  // direct call (no CORS issues)
   window.open(url, "_blank");
 
-  // reload leaderboard after slight delay
-  setTimeout(loadLeaderboard, 2000);
+  // refresh leaderboard
+  setTimeout(loadLeaderboard, 1500);
 }
   
   /* LOAD LEADERBOARD */
