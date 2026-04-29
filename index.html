@@ -77,21 +77,23 @@
 const words = ["DATA", "NINJA", "CLIX"];
 let foundWords = [];
 
-/* 6x6 GRID */
+/* ✅ CORRECT GRID */
 const gridLetters = [
-["D","A","T","A","X","Q"],   // DATA → horizontal
+["D","A","T","A","Q","R"],   // DATA →
 ["N","B","C","D","E","F"],
-["I","G","H","I","J","K"],
-["N","L","M","N","O","P"],
-["J","Q","R","S","T","U"],
+["I","G","H","L","J","K"],
+["N","M","N","I","I","P"],
+["J","Q","R","S","X","X"],
 ["A","V","W","X","Y","Z"]
 ];
 
-// CLIX diagonal (manually placed)
-gridLetters[0][5] = "C";
-gridLetters[1][4] = "L";
-gridLetters[2][3] = "I";
-gridLetters[3][2] = "X";
+/*
+CLIX diagonal:
+C → (1,2)
+L → (2,3)
+I → (3,4)
+X → (4,5)
+*/
 
 let selectedCells = [];
 let isDragging = false;
