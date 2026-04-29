@@ -1,1 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Office Word Hunt</title>
 
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      text-align: center;
+      margin: 0;
+    }
+
+    .container {
+      background: white;
+      width: 420px;
+      margin: 40px auto;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(6, 55px);
+      gap: 6px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .cell {
+      width: 55px;
+      height: 55px;
+      background: #f1f3f5;
+      border-radius: 10px;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .selected { background: #ffd43b; }
+    .found { background: #40c057; color: white; }
+
+    .word {
+      display: inline-block;
+      padding: 6px 10px;
+      margin: 5px;
+      border-radius: 6px;
+      background: #eee;
+    }
+
+    .done {
+      background: #40c057;
+      color: white;
+      text-decoration: line-through;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🧩 Office Word Hunt</h1>
+
+<h3>Find these words:</h3>
+<div id="wordList"></div>
+
+<div class="grid" id="grid"></div>
+
+</div>
+
+<script>
+const words = ["DATA", "NINJA", "CLIX"];
+let foundWords = [];
+
+/* ✅ CORRECT GRID */
+const gridLetters = [
+["D","A","T","A","Q","R"],   // DATA →
+["N","B","C","D","E","F"],
+["I","G","H","L","J","K"],
+["N","M","N","I","I","P"],
+["J","Q","R","S","X","X"],
+["A","V","W","X","Y","Z"]
+];
+
+/*
+CLIX diagonal:
+C → (1,2)
+L → (2,3)
+I → (3,4)
+X → (4,5)
+*/
+
+let selectedCells = [];
+let isDragging = false;
+
+function createGrid() {
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
+
+  gridLetters.forEach((row) => {
+    row.forEach((letter) => {
+      const div = document.createElement("div");
+      div.className = "cell";
+      div.innerText = letter;
+
+      div.onmousedown = () => startSelection(div);
+      div.onmouseover = () => dragSelection(div);
+      div.onmouseup = endSelection;
+
+      grid.appendChild(div);
+    });
+  });
+}
+
+function startSelection(cell) {
+  isDragging = true;
+  selectedCells = [];
+  selectCell(cell);
+}
+
+function dragSelection(cell) {
+  if (isDragging) selectCell(cell);
+}
+
+function selectCell(cell) {
+  if (!selectedCells.includes(cell)) {
+    selectedCells.push(cell);
+    cell.classList.add("selected");
+  }
+}
+
+function endSelection() {
+  isDragging = false;
+
+  let forward = selectedCells.map(c => c.innerText).join("");
+  let backward = forward.split("").reverse().join("");
+
+  if ((words.includes(forward) || words.includes(backward)) &&
+      !foundWords.includes(forward) && !foundWords.includes(backward)) {
+
+    selectedCells.forEach(c => {
+      c.classList.remove("selected");
+      c.classList.add("found");
+    });
+
+    if (words.includes(forward)) foundWords.push(forward);
+    if (words.includes(backward)) foundWords.push(backward);
+
+    updateWordList();
+  } else {
+    selectedCells.forEach(c => c.classList.remove("selected"));
+  }
+
+  selectedCells = [];
+}
+
+function updateWordList() {
+  const list = document.getElementById("wordList");
+  list.innerHTML = "";
+
+  words.forEach(w => {
+    const div = document.createElement("div");
+    div.className = "word";
+    if (foundWords.includes(w)) div.classList.add("done");
+    div.innerText = w;
+    list.appendChild(div);
+  });
+}
+
+createGrid();
+updateWordList();
+</script>
+
+</body>
+</html>
