@@ -34,6 +34,7 @@
       gap: 6px;
       justify-content: center;
       margin-top: 20px;
+      touch-action: none;
     }
 
     .cell {
@@ -116,7 +117,6 @@ let selectedCells = [];
 let isDragging = false;
 let startTime = Date.now();
 
-/* 🔥 YOUR FINAL SCRIPT URL */
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwftOP6ih5Meavls36tvfLwa7ttxGz1A9oF_gf-L2lcXLy-g0KPZDyS2JG2nr3XJz4ZCw/exec";
 
 function createGrid() {
@@ -129,9 +129,29 @@ function createGrid() {
       div.className = "cell";
       div.innerText = letter;
 
+      // MOUSE
       div.onmousedown = () => startSelection(div);
       div.onmouseover = () => dragSelection(div);
       div.onmouseup = endSelection;
+
+      // TOUCH
+      div.ontouchstart = (e) => {
+        e.preventDefault();
+        startSelection(div);
+      };
+
+      div.ontouchmove = (e) => {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const el = document.elementFromPoint(touch.clientX, touch.clientY);
+        if (el && el.classList.contains("cell")) {
+          dragSelection(el);
+        }
+      };
+
+      div.ontouchend = () => {
+        endSelection();
+      };
 
       grid.appendChild(div);
     });
@@ -198,7 +218,6 @@ function updateWordList() {
   });
 }
 
-/* 🔥 FINAL SAVE (POST — WORKING) */
 function saveScore(time) {
   const name = document.getElementById("playerName").value.trim();
 
@@ -224,7 +243,6 @@ function saveScore(time) {
   });
 }
 
-/* LOAD LEADERBOARD */
 function loadLeaderboard() {
   fetch(SCRIPT_URL)
     .then(res => res.json())
