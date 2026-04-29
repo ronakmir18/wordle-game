@@ -116,8 +116,8 @@ let selectedCells = [];
 let isDragging = false;
 let startTime = Date.now();
 
-/* ✅ YOUR FINAL SCRIPT URL */
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby-JYx5cldCpIhuKzIO8HxYipq6PU9jGqk-7U3A7tgK6bES5ryZ1Xi5dkRPWu5CRP2Z8g/exec";
+/* 🔥 YOUR FINAL SCRIPT URL */
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwftOP6ih5Meavls36tvfLwa7ttxGz1A9oF_gf-L2lcXLy-g0KPZDyS2JG2nr3XJz4ZCw/exec";
 
 function createGrid() {
   const grid = document.getElementById("grid");
@@ -198,7 +198,7 @@ function updateWordList() {
   });
 }
 
-/* 🔥 FINAL WORKING SAVE */
+/* 🔥 FINAL SAVE (POST — WORKING) */
 function saveScore(time) {
   const name = document.getElementById("playerName").value.trim();
 
@@ -216,7 +216,6 @@ function saveScore(time) {
     body: formData
   })
   .then(() => {
-    alert("Score saved!");
     loadLeaderboard();
   })
   .catch(err => {
