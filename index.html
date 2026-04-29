@@ -215,8 +215,8 @@ function saveScore(time) {
 
   console.log("SENDING:", finalName, finalTime); // 👈 debug
 
-  window.open(url, "_blank");
-
+  window.location.href = url;
+  
   setTimeout(loadLeaderboard, 1500);
 }
   
