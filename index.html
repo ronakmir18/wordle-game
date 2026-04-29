@@ -204,7 +204,12 @@ function updateWordList() {
 
 /* SAVE SCORE */
 function saveScore(time) {
-  const name = document.getElementById("playerName").value.trim() || "Anonymous";
+  const name = document.getElementById("playerName").value.trim();
+
+  if (!name) {
+    alert("Enter name first");
+    return;
+  }
 
   const formData = new FormData();
   formData.append("name", name);
@@ -215,15 +220,14 @@ function saveScore(time) {
     body: formData
   })
   .then(() => {
-    alert("Score saved!");
+    alert("Saved!");
     loadLeaderboard();
   })
   .catch(err => {
     console.error(err);
     alert("Still broken");
   });
-}
-  
+}  
   /* LOAD LEADERBOARD */
 function loadLeaderboard() {
   fetch(SCRIPT_URL)
