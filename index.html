@@ -203,14 +203,18 @@ function updateWordList() {
 /* SAVE SCORE */
 function saveScore(time) {
   const nameInput = document.getElementById("playerName");
-  const name = nameInput.value.trim() || "Anonymous";
+  const name = nameInput ? nameInput.value.trim() : "";
 
-  const url = `${SCRIPT_URL}?name=${encodeURIComponent(name)}&time=${encodeURIComponent(time)}`;
+  const finalName = name === "" ? "Anonymous" : name;
 
-  // direct call (no CORS issues)
+  const finalTime = time || 0;
+
+  const url = `${SCRIPT_URL}?name=${encodeURIComponent(finalName)}&time=${encodeURIComponent(finalTime)}`;
+
+  console.log("SENDING:", finalName, finalTime); // 👈 debug
+
   window.open(url, "_blank");
 
-  // refresh leaderboard
   setTimeout(loadLeaderboard, 1500);
 }
   
