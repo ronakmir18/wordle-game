@@ -1,1 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Office Word Hunt</title>
 
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      text-align: center;
+      margin: 0;
+    }
+
+    .container {
+      width: 95%;
+      max-width: 500px;
+      margin: 20px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+
+    input {
+      padding: 10px;
+      width: 80%;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin: 10px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+      gap: 6px;
+      margin-top: 20px;
+      touch-action: none;
+    }
+
+    .cell {
+      aspect-ratio: 1;
+      background: #f1f3f5;
+      border-radius: 10px;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+    }
+
+    .selected { background: #ffd43b; }
+    .found { background: #40c057; color: white; }
+
+    .word {
+      display: inline-block;
+      padding: 6px 10px;
+      margin: 5px;
+      border-radius: 6px;
+      background: #eee;
+    }
+
+    .done {
+      background: #40c057;
+      color: white;
+      text-decoration: line-through;
+    }
+
+    ul {
+      padding: 0;
+    }
+
+    li {
+      list-style: none;
+      background: #f1f3f5;
+      margin: 5px;
+      padding: 8px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🧩 Office Word Hunt</h1>
+
+<input id="playerName" placeholder="Enter your name">
+
+<h3>Find these words:</h3>
+<div id="wordList"></div>
+
+<div class="grid" id="grid"></div>
+
+<h3>🏆 Leaderboard</h3>
+<ul id="leaderboard"></ul>
+
+</div>
+
+<script>
+const words = ["DATA", "NINJA", "CLIX", "HYGIENE", "FIELD", "CLOUD", "SERVER"];
+let foundWords = [];
+
+const gridLetters = [
+["H","Y","G","I","E","N","E","Q"],
+["A","B","C","D","E","F","G","F"],
+["T","L","O","U","D","X","Y","I"],
+["X","I","L","C","N","J","A","E"],
+["D","I","E","L","D","P","Q","L"],
+["S","E","R","O","E","R","W","D"],
+["Z","X","C","U","I","X","A","E"],
+["K","J","I","D","A","T","A","D"]
+];
+
+let selectedCells = [];
+let isDragging = false;
+let startTime = Date.now();
+
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwftOP6ih5Meavls36tvfLwa7ttxGz1A9oF_gf-L2lcXLy-g0KPZDyS2JG2nr3XJz4ZCw/exec";
+
+function createGrid() {
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
+
+  gridLetters.forEach(row => {
+    row.forEach(letter => {
+      const div = document.createElement("div");
+      div.className = "cell";
+      div.innerText = letter;
+
+      // Mouse
+      div.onmousedown = () => startSelection(div);
+      div.onmouseover = () => dragSelection(div);
+      div.onmouseup = endSelection;
+
+      // Touch
+      div.ontouchstart = (e) => {
+        e.preventDefault();
+        startSelection(div);
+      };
+
+      div.ontouchmove = (e) => {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const el = document.elementFromPoint(touch.clientX, touch.clientY);
+        if (el && el.classList.contains("cell")) {
+          dragSelection(el);
+        }
+      };
+
+      div.ontouchend = endSelection;
+
+      grid.appendChild(div);
+    });
+  });
+}
+
+function startSelection(cell) {
+  isDragging = true;
+  selectedCells = [];
+  selectCell(cell);
+}
+
+function dragSelection(cell) {
+  if (isDragging) selectCell(cell);
+}
+
+function selectCell(cell) {
+  if (!selectedCells.includes(cell)) {
+    selectedCells.push(cell);
+    cell.classList.add("selected");
+  }
+}
+
+function endSelection() {
+  isDragging = false;
+
+  let word = selectedCells.map(c => c.innerText).join("");
+  let reverse = word.split("").reverse().join("");
+
+  if ((words.includes(word) || words.includes(reverse)) &&
+      !foundWords.includes(word) && !foundWords.includes(reverse)) {
+
+    selectedCells.forEach(c => {
+      c.classList.remove("selected");
+      c.classList.add("found");
+    });
+
+    if (words.includes(word)) foundWords.push(word);
+    if (words.includes(reverse)) foundWords.push(reverse);
+
+    updateWordList();
+  } else {
+    selectedCells.forEach(c => c.classList.remove("selected"));
+  }
+
+  selectedCells = [];
+
+  if (foundWords.length === words.length) {
+    let timeTaken = ((Date.now() - startTime) / 1000).toFixed(2);
+    saveScore(timeTaken);
+  }
+}
+
+function updateWordList() {
+  const list = document.getElementById("wordList");
+  list.innerHTML = "";
+
+  words.forEach(w => {
+    const div = document.createElement("div");
+    div.className = "word";
+    if (foundWords.includes(w)) div.classList.add("done");
+    div.innerText = w;
+    list.appendChild(div);
+  });
+}
+
+function saveScore(time) {
+  const name = document.getElementById("playerName").value.trim();
+  if (!name) return alert("Enter your name");
+
+  const formData = new FormData();
+  formData.append("name", name);
+  formData.append("time", time);
+
+  fetch(SCRIPT_URL, {
+    method: "POST",
+    body: formData
+  })
+  .then(() => loadLeaderboard())
+  .catch(() => alert("Error saving"));
+}
+
+function loadLeaderboard() {
+  fetch(SCRIPT_URL)
+    .then(res => res.json())
+    .then(data => {
+      data.sort((a,b)=>a.time-b.time);
+
+      const board = document.getElementById("leaderboard");
+      board.innerHTML = "";
+
+      data.forEach(s => {
+        const li = document.createElement("li");
+        li.innerText = `${s.name} — ${s.time}s`;
+        board.appendChild(li);
+      });
+    });
+}
+
+createGrid();
+updateWordList();
+loadLeaderboard();
+</script>
+
+</body>
+</html>
