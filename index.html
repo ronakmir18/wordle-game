@@ -101,16 +101,17 @@
 </div>
 
 <script>
-const words = ["DATA", "NINJA", "CLIX"];
-let foundWords = [];
+const words = ["DATA", "NINJA", "CLIX", "HYGIENE", "FIELD", "CLOUD", "SERVER"];
 
 const gridLetters = [
-["D","A","T","A","Q","R"],
-["D","B","C","D","E","F"],
-["I","G","L","L","J","K"],
-["H","M","I","I","O","P"],
-["J","Q","X","S","X","U"],
-["D","A","J","N","I","N"]
+["H","Y","G","I","E","N","E","Q"],   // HYGIENE →
+["A","B","C","D","E","F","G","F"],
+["T","L","O","U","D","X","Y","I"],   // CLOUD →
+["X","I","L","C","N","J","A","E"],   // NINJA →
+["D","I","E","L","D","P","Q","L"],   // FIELD →
+["S","E","R","O","E","R","W","D"],   // SERVER →
+["Z","X","C","U","I","X","A","E"],   // CLIX →
+["K","J","I","D","A","T","A","D"]    // DATA ↓ (vertical)
 ];
 
 let selectedCells = [];
