@@ -74,48 +74,12 @@
       border-radius: 8px;
       font-size: 12px;
     }
-
-    .popup-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 999;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .popup-overlay.show {
-      display: flex;
-    }
-
-    .popup-box {
-      background: white;
-      border-radius: 16px;
-      padding: 30px 24px;
-      max-width: 300px;
-      width: 90%;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    }
-
-    .popup-box h2 { margin: 0 0 8px; font-size: 22px; }
-    .popup-box p { color: #555; font-size: 14px; margin: 0 0 20px; }
-
-    .popup-box button {
-      background: #667eea;
-      color: white;
-      border: none;
-      padding: 10px 24px;
-      border-radius: 8px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-
-    .popup-box button:hover { background: #764ba2; }
   </style>
 </head>
 
 <body>
+
+<div id="toast" style="display:none;position:fixed;top:30px;left:50%;transform:translateX(-50%);background:#40c057;color:white;padding:12px 24px;border-radius:12px;font-size:14px;font-weight:600;z-index:999;box-shadow:0 4px 12px rgba(0,0,0,0.2);"></div>
 
 <div class="container">
   <h2>🧩 Word Hunt</h2>
@@ -124,14 +88,6 @@
   <div class="grid" id="grid"></div>
   <h3>🏆 Leaderboard</h3>
   <ul id="leaderboard"></ul>
-</div>
-
-<div class="popup-overlay" id="popupOverlay">
-  <div class="popup-box">
-    <h2>🎉 Nice work!</h2>
-    <p id="popupMessage"></p>
-    <button onclick="closePopup()">Close</button>
-  </div>
 </div>
 
 <script>
@@ -160,14 +116,11 @@ let startTime = Date.now();
 
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwftOP6ih5Meavls36tvfLwa7ttxGz1A9oF_gf-L2lcXLy-g0KPZDyS2JG2nr3XJz4ZCw/exec";
 
-function showPopup(name, time) {
-  document.getElementById("popupMessage").innerText =
-    `✅ Entry recorded for ${name}! You completed it in ${time}s. Check the leaderboard to see where you stand!`;
-  document.getElementById("popupOverlay").classList.add("show");
-}
-
-function closePopup() {
-  document.getElementById("popupOverlay").classList.remove("show");
+function showToast(time) {
+  const toast = document.getElementById("toast");
+  toast.innerText = `✅ Entry recorded! Time: ${time}s`;
+  toast.style.display = "block";
+  setTimeout(() => toast.style.display = "none", 3000);
 }
 
 function createGrid() {
@@ -273,7 +226,7 @@ function saveScore(time) {
 
   fetch(SCRIPT_URL, { method: "POST", body: fd })
     .then(() => {
-      showPopup(name, time);
+      showToast(time);
       loadLeaderboard();
     });
 }
