@@ -29,7 +29,6 @@
       margin: 10px 0;
     }
 
-    /* 🔥 12x12 GRID FIX */
     .grid {
       display: grid;
       grid-template-columns: repeat(12, 1fr);
@@ -75,24 +74,64 @@
       border-radius: 8px;
       font-size: 12px;
     }
+
+    .popup-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .popup-overlay.show {
+      display: flex;
+    }
+
+    .popup-box {
+      background: white;
+      border-radius: 16px;
+      padding: 30px 24px;
+      max-width: 300px;
+      width: 90%;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .popup-box h2 { margin: 0 0 8px; font-size: 22px; }
+    .popup-box p { color: #555; font-size: 14px; margin: 0 0 20px; }
+
+    .popup-box button {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .popup-box button:hover { background: #764ba2; }
   </style>
 </head>
 
 <body>
 
 <div class="container">
+  <h2>🧩 Word Hunt</h2>
+  <input id="playerName" placeholder="Enter your name">
+  <div id="wordList"></div>
+  <div class="grid" id="grid"></div>
+  <h3>🏆 Leaderboard</h3>
+  <ul id="leaderboard"></ul>
+</div>
 
-<h2>🧩 Word Hunt</h2>
-
-<input id="playerName" placeholder="Enter your name">
-
-<div id="wordList"></div>
-
-<div class="grid" id="grid"></div>
-
-<h3>🏆 Leaderboard</h3>
-<ul id="leaderboard"></ul>
-
+<div class="popup-overlay" id="popupOverlay">
+  <div class="popup-box">
+    <h2>🎉 Nice work!</h2>
+    <p id="popupMessage"></p>
+    <button onclick="closePopup()">Close</button>
+  </div>
 </div>
 
 <script>
@@ -120,6 +159,16 @@ let isDragging = false;
 let startTime = Date.now();
 
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwftOP6ih5Meavls36tvfLwa7ttxGz1A9oF_gf-L2lcXLy-g0KPZDyS2JG2nr3XJz4ZCw/exec";
+
+function showPopup(name, time) {
+  document.getElementById("popupMessage").innerText =
+    `✅ Entry recorded for ${name}! You completed it in ${time}s. Check the leaderboard to see where you stand!`;
+  document.getElementById("popupOverlay").classList.add("show");
+}
+
+function closePopup() {
+  document.getElementById("popupOverlay").classList.remove("show");
+}
 
 function createGrid() {
   const grid = document.getElementById("grid");
@@ -216,25 +265,26 @@ function updateWordList() {
 
 function saveScore(time) {
   const name = document.getElementById("playerName").value.trim();
-  if (!name) return alert("Enter your name");
+  if (!name) return alert("Enter your name first!");
 
   const fd = new FormData();
   fd.append("name", name);
   fd.append("time", time);
 
   fetch(SCRIPT_URL, { method: "POST", body: fd })
-    .then(() => loadLeaderboard());
+    .then(() => {
+      showPopup(name, time);
+      loadLeaderboard();
+    });
 }
 
 function loadLeaderboard() {
   fetch(SCRIPT_URL)
     .then(res => res.json())
     .then(data => {
-      data.sort((a,b)=>a.time-b.time);
-
+      data.sort((a,b) => a.time - b.time);
       const board = document.getElementById("leaderboard");
       board.innerHTML = "";
-
       data.forEach(s => {
         const li = document.createElement("li");
         li.innerText = `${s.name} — ${s.time}s`;
