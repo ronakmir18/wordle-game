@@ -79,7 +79,7 @@
 
 <body>
 
-<div id="toast" style="display:none;position:fixed;top:30px;left:50%;transform:translateX(-50%);background:#40c057;color:white;padding:12px 24px;border-radius:12px;font-size:14px;font-weight:600;z-index:999;box-shadow:0 4px 12px rgba(0,0,0,0.2);"></div>
+<div id="toast" style="display:none;position:fixed;top:30px;left:50%;transform:translateX(-50%);background:#40c057;color:white;padding:12px 24px;border-radius:12px;font-size:14px;font-weight:600;z-index:999;box-shadow:0 4px 12px rgba(0,0,0,0.2);white-space:nowrap;"></div>
 
 <div class="container">
   <h2>🧩 Word Hunt</h2>
@@ -126,31 +126,22 @@ function showToast(time) {
 function createGrid() {
   const grid = document.getElementById("grid");
   grid.innerHTML = "";
-
   gridLetters.forEach(row => {
     row.forEach(letter => {
       const div = document.createElement("div");
       div.className = "cell";
       div.innerText = letter;
-
       div.onmousedown = () => startSelection(div);
       div.onmouseover = () => dragSelection(div);
       div.onmouseup = endSelection;
-
-      div.ontouchstart = (e) => {
-        e.preventDefault();
-        startSelection(div);
-      };
-
+      div.ontouchstart = (e) => { e.preventDefault(); startSelection(div); };
       div.ontouchmove = (e) => {
         e.preventDefault();
         const t = e.touches[0];
         const el = document.elementFromPoint(t.clientX, t.clientY);
         if (el && el.classList.contains("cell")) dragSelection(el);
       };
-
       div.ontouchend = endSelection;
-
       grid.appendChild(div);
     });
   });
@@ -175,21 +166,14 @@ function selectCell(cell) {
 
 function endSelection() {
   isDragging = false;
-
   let word = selectedCells.map(c => c.innerText).join("");
   let reverse = word.split("").reverse().join("");
 
   if ((words.includes(word) || words.includes(reverse)) &&
       !foundWords.includes(word) && !foundWords.includes(reverse)) {
-
-    selectedCells.forEach(c => {
-      c.classList.remove("selected");
-      c.classList.add("found");
-    });
-
+    selectedCells.forEach(c => { c.classList.remove("selected"); c.classList.add("found"); });
     if (words.includes(word)) foundWords.push(word);
     if (words.includes(reverse)) foundWords.push(reverse);
-
     updateWordList();
   } else {
     selectedCells.forEach(c => c.classList.remove("selected"));
@@ -206,7 +190,6 @@ function endSelection() {
 function updateWordList() {
   const list = document.getElementById("wordList");
   list.innerHTML = "";
-
   words.forEach(w => {
     const div = document.createElement("div");
     div.className = "word";
@@ -219,11 +202,9 @@ function updateWordList() {
 function saveScore(time) {
   const name = document.getElementById("playerName").value.trim();
   if (!name) return alert("Enter your name first!");
-
   const fd = new FormData();
   fd.append("name", name);
   fd.append("time", time);
-
   fetch(SCRIPT_URL, { method: "POST", body: fd })
     .then(() => {
       showToast(time);
